@@ -5,6 +5,7 @@
   "type": "library",
   "license": "MIT",
   "require": {
+    "php": "^7.3",
     "waryway/php-logger": "0.0.3"
   },
   "authors": [
