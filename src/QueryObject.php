@@ -76,7 +76,7 @@ class QueryObject
      * @return array
      */
     public function BuildAdd($queryText, $params = [], $queryObjects = []) : QueryObject
-    {   
+    {
         foreach($queryObjects as $queryObject) {
             $params = array_merge($params, $queryObject->getParameters());
         }

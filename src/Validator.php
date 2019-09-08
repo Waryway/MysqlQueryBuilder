@@ -15,16 +15,22 @@ class Validator
         return $this->errorList;
     }
 
-    public function ValidateQueryObject(QueryObject $queryObject)
+    /**
+     * @param QueryObject $queryObject
+     * @return bool
+     */
+    public function ValidateQueryObject(QueryObject $queryObject) : bool
     {
         $queryString = $queryObject->toSql();
 
-        $this->IsQueryStringParameterized($queryString);
-        $this->AreParametersValid($queryObject->getParameters(), $queryString);
-
+        return $this->IsQueryStringParameterized($queryString) && $this->AreParametersValid($queryObject->getParameters(), $queryString);
     }
 
-    public function IsQueryStringParameterized(string $queryString) : bool
+    /**
+     * @param string $queryString
+     * @return bool
+     */
+    private function IsQueryStringParameterized(string $queryString) : bool
     {
         $isValid = true;
         if(strstr($queryString, '?')) {
@@ -32,7 +38,11 @@ class Validator
             
             $this->errorList[] = "Invalid query string, unexpected '?', use ':' notation for parameterization. Query: ($queryString)";
         }
-        
+
+        if(preg_match('/(=|<|>|<=|>=|\|\||\+|\-|\*|\%|is|IS|NOT|not|in\s+\(.*|between|and|IN\s+\()\s+("|\'|[0-9])/si', $queryString)) {
+            $isValid = false;
+            $this->errorList[] = "Invalid query string, looks like a parameter needs to be used. Query: ($queryString)";
+        }
         
         return $isValid;
     }
@@ -44,7 +54,7 @@ class Validator
      * @param $queryString
      * @return bool
      */
-    public function AreParametersValid($params, $queryString)
+    private function AreParametersValid($params, $queryString)
     {
         $isValid = true;
         foreach ($params as $key => $param) {
